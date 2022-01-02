@@ -75,7 +75,7 @@ func runServeCmd() {
 	oastore.CreateClient(&osin.DefaultClient{
 		Id:          "1234",
 		Secret:      "aabbccdd",
-		RedirectUri: "http://localhost:8000/appauth/code",
+		RedirectUri: "http://localhost:8001/appauth/code",
 	})
 
 	//

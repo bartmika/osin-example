@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/bartmika/osin-example/internal/models"
-	"github.com/bartmika/osin-example/internal/utils"
 	"github.com/openshift/osin"
 )
 
@@ -149,30 +148,69 @@ func (h *Controller) handleTokenRequest(w http.ResponseWriter, r *http.Request) 
 
 // Authorization code endpoint
 func (h *Controller) handleAuthorizeRequest(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	defer r.Body.Close()
 
-	log.Println("handleAuthorizeRequest|starting...")
+	log.Println("handleAuthorizeRequest|Started")
+	var authenticatedUser *models.User
 
 	resp := h.OAuthServer.NewResponse()
 	defer resp.Close()
 
 	if ar := h.OAuthServer.HandleAuthorizeRequest(resp, r); ar != nil {
-		if !utils.HandleLoginPage(ar, w, r) {
+		user, _ := h.handleAuthorizationLoginPage(ctx, ar, w, r)
+		if user == nil {
 			return
 		}
-		ar.UserData = struct{ Login string }{Login: "test"}
+
+		log.Println("handleAuthorizeRequest|Authorizing")
+
+		// The `osin` library requires we set this value to true so
+		// the whole system will generate our access token.
 		ar.Authorized = true
+
+		// Store this for our output later...
+		authenticatedUser = user
+
+		// This is important because we want to store the user account
+		// in the store session for the particular access token when.
+		// This means that when we retrieve from the oauth storage for
+		// the access token, the user profile will be returned as well.
+		// That also means we can utilize our oauth storage in other
+		// areas of our app like 'middleware' to protect resources.
+		ar.UserData = &models.UserLite{
+			TenantID: user.TenantID,
+			RoleID:   user.RoleID,
+			ID:       user.ID,
+			UUID:     user.UUID,
+			Timezone: user.Timezone,
+			Name:     user.Name,
+			State:    user.State,
+			Email:    user.Email,
+		}
+
 		h.OAuthServer.FinishAuthorizeRequest(resp, r, ar)
 	}
 	if resp.IsError && resp.InternalError != nil {
 		fmt.Printf("ERROR: %s\n", resp.InternalError)
 	}
 	if !resp.IsError {
-		resp.Output["custom_parameter"] = 187723
+		// The following section is the additional `extra` data we want to
+		// return in the token object when we return our token.
+		if resp.Output != nil && authenticatedUser != nil {
+			resp.Output["user_id"] = authenticatedUser.ID
+			resp.Output["first_name"] = authenticatedUser.FirstName
+			resp.Output["last_name"] = authenticatedUser.LastName
+			resp.Output["email"] = authenticatedUser.Email
+			resp.Output["language"] = authenticatedUser.Language
+			resp.Output["role_id"] = authenticatedUser.RoleID
+			resp.Output["tenant_id"] = authenticatedUser.TenantID
+			log.Println("handleAuthorizeRequest|added extra to token")
+		}
 	}
 	osin.OutputJSON(resp, w, r)
 
-	log.Println("handleAuthorizeRequest|finished")
+	log.Println("handleAuthorizeRequest|Finished")
 }
 
 // Info endpoint

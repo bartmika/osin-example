@@ -48,10 +48,12 @@ func (h *Controller) HandleRequests(w http.ResponseWriter, r *http.Request) {
 	// --- OAuth 2.0 --- //
 	case n == 1 && p[0] == "token":
 		h.handleTokenRequest(w, r)
-	case n == 1 && p[0] == "authorize" && r.Method == http.MethodGet:
+	case n == 1 && p[0] == "authorize":
 		h.handleAuthorizeRequest(w, r)
 	case n == 1 && p[0] == "info":
 		h.handleInfoRequest(w, r)
+	case n == 2 && p[0] == "appauth" && p[1] == "code":
+		h.handleAuthorizationPermissionRequest(w, r)
 
 	// --- CATCH ALL: D.N.E. ---
 	default:

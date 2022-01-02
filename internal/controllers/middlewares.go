@@ -65,6 +65,7 @@ func (h *Controller) ProtectedURLsMiddleware(fn http.HandlerFunc) http.HandlerFu
 			"login":         true,
 			"refresh-token": true,
 			"submit":        true,
+			"appauth":       true,
 		}
 
 		// log.Println(urlSplit)
