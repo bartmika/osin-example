@@ -1,16 +1,5 @@
-go mod init github.com/bartmika/osin-example
-
-go get github.com/google/uuid
-go get github.com/rs/cors
-go get github.com/spf13/cobra
-go get github.com/go-redis/redis  
-go get github.com/dgrijalva/jwt-go
-go get golang.org/x/crypto/bcrypt
-go get github.com/lib/pq
-go get gopkg.in/guregu/null.v4
-go get golang.org/x/oauth2
-go get github.com/ShaleApps/osinredis
-go get github.com/openshift/osin
+# OSIN Example
+The purpose of this repository is to provide Golang example code of an identity provider using oAuth 2.0 to grant access to users and [third-party developers](https://github.com/bartmika/osin-thirdparty-example). This code uses the [`openshift/osin`](https://github.com/openshift/osin) Golang oAuth 2.0 library.
 
 
 ```bash
