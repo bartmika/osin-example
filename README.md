@@ -108,13 +108,13 @@ The project is licensed under the [Unlicense](LICENSE).
 Third party libraries and resources:
 
 * [github.com/openshift/osin](https://github.com/openshift/osin) (BSD-3-Clause License) is used for oAuth 2.0 server implementation.
-* [github.com/openshift/osin](https://github.com/openshift/osin) is used for the oAuth 2.0 server session storage handling.
+* [github.com/ShaleApps/osinredis](https://github.com/ShaleApps/osinredis) (MIT) is used for the oAuth 2.0 server session storage handling.
 * [go-oauth2/oauth2](https://github.com/go-oauth2/oauth2) (MIT) was not used but was a valuable learning resource.
-* [golang.org/x/oauth2](https://golang.org/x/oauth2) is used for client side oAuth 2.0 library.
-* [github.com/google/uuid](https://github.com/google/uuid) is used for generating UUID values.
-* [github.com/rs/cors](https://github.com/rs/cors) is used
-* [github.com/spf13/cobra](https://github.com/spf13/cobra) is used
-* [github.com/go-redis/redis](https://github.com/go-redis/redis) is used
-* [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt) is used for password hashing.
-* [github.com/lib/pq](https://github.com/lib/pq) is used for `postgres` connection handling.
-* [gopkg.in/guregu/null.v4](https://gopkg.in/guregu/null.v4) is used for null fields in marshal/unmarshal operations.
+* [golang.org/x/oauth2](https://pkg.go.dev/golang.org/x/oauth2) (BSD-3-Clause License) is used for client side oAuth 2.0 library.
+* [github.com/google/uuid](https://github.com/google/uuid) (BSD-3-Clause License) is used for generating UUID values.
+* [github.com/rs/cors](https://github.com/rs/cors) (MIT) is used for dealing with CORS headers for every request made to this API server.
+* [github.com/spf13/cobra](https://github.com/spf13/cobra) (Apache-2.0 License) is used to structure this application using a CLI.
+* [github.com/go-redis/redis](https://github.com/go-redis/redis) (BSD-2-Clause License) is used for `redis` handling.
+* [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt) (BSD-3-Clause License) is used for password hashing.
+* [github.com/lib/pq](https://github.com/lib/pq) (OTHER) is used for `postgres` handling.
+* [gopkg.in/guregu/null.v4](https://gopkg.in/guregu/null.v4) (BSD-2-Clause License) is used for null fields in marshal/unmarshal operations.
