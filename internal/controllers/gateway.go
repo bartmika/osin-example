@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -153,14 +152,14 @@ func (h *Controller) loginEndpoint(w http.ResponseWriter, r *http.Request) {
 	log.Println("Beginning Password Based Authorization")
 
 	client := &oauth2.Config{
-		ClientID:     "1234",
-		ClientSecret: "aabbccdd",
+		ClientID:     h.Config["ClientID"],
+		ClientSecret: h.Config["ClientSecret"],
 		Scopes:       []string{"all"},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "http://localhost:8000/authorize",
-			TokenURL: "http://localhost:8000/token",
+			AuthURL:  h.Config["ClientAuthURL"],
+			TokenURL: h.Config["ClientTokenURL"],
 		},
-		RedirectURL: "http://localhost:8000/appauth/code",
+		RedirectURL: h.Config["ClientReturnURL"],
 	}
 
 	// NOTE: https://pkg.go.dev/golang.org/x/oauth2#Config.PasswordCredentialsToken
@@ -210,7 +209,7 @@ func (h *Controller) postRefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	endpoint := fmt.Sprintf("http://127.0.0.1:8000/token")
+	endpoint := h.Config["ClientTokenURL"]
 	data := url.Values{}
 	data.Set("grant_type", requestData.GrantType)
 	data.Set("refresh_token", requestData.RefreshToken)
@@ -221,27 +220,31 @@ func (h *Controller) postRefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	preq, err := http.NewRequest("POST", endpoint, strings.NewReader(data.Encode()))
 	if err != nil {
-		log.Fatal(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	preq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	preq.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
-	preq.SetBasicAuth("1234", "aabbccdd")
+	preq.SetBasicAuth(h.Config["ClientID"], h.Config["ClientSecret"])
 
 	pclient := &http.Client{}
 	presp, err := pclient.Do(preq)
 	if err != nil {
-		log.Fatal(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer presp.Body.Close()
 
 	if presp.StatusCode != 200 {
-		log.Fatal("Not 200!")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Read the response body
 	responseBytes, err := ioutil.ReadAll(presp.Body)
 	if err != nil {
-		log.Fatalf("ReadAll | An Error Occured %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// We will simply return the bytes! Thus skipping the marhsal/unmarhsal step.

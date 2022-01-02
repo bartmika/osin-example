@@ -10,12 +10,16 @@ import (
 )
 
 var (
-	databaseHost          string
-	databasePort          string
-	databaseUser          string
-	databasePassword      string
-	databaseName          string
-	applicationSigningKey string
+	databaseHost                    string
+	databasePort                    string
+	databaseUser                    string
+	databasePassword                string
+	databaseName                    string
+	applicationSigningKey           string
+	applicationAddress              string
+	applicationFrontendClientID     string
+	applicationFrontendClientSecret string
+	applicationFrontendReturnURL    string
 )
 
 // Initialize function will be called when every command gets called.
@@ -27,6 +31,10 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&databasePassword, "dbPassword", os.Getenv("OSIN_DB_PASSWORD"), "The database password.")
 	rootCmd.PersistentFlags().StringVar(&databaseName, "dbName", os.Getenv("OSIN_DB_NAME"), "The database name.")
 	rootCmd.PersistentFlags().StringVar(&applicationSigningKey, "appSignKey", os.Getenv("OSIN_APP_SIGNING_KEY"), "The signing key.")
+	rootCmd.PersistentFlags().StringVar(&applicationAddress, "applicationAddress", os.Getenv("OSIN_APP_ADDRESS"), "Application address")
+	rootCmd.PersistentFlags().StringVar(&applicationFrontendClientID, "clientID", os.Getenv("OSIN_APP_FRONTEND_CLIENT_ID"), "Client ID")
+	rootCmd.PersistentFlags().StringVar(&applicationFrontendClientSecret, "clientSecret", os.Getenv("OSIN_APP_FRONTEND_CLIENT_SECRET"), "Client Secret")
+	rootCmd.PersistentFlags().StringVar(&applicationFrontendReturnURL, "returnURL", os.Getenv("OSIN_APP_FRONTEND_RETURN_URL"), "Client Return URL")
 }
 
 var rootCmd = &cobra.Command{

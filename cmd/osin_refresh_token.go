@@ -14,23 +14,31 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//
-// var (
-// 	signinEmail    string
-// 	signinPassword string
-// )
+var (
+	rtClientID     string
+	rtClientSecret string
+	rtAuthorizeURL string
+	rtTokenURL     string
+	rtRedirectURL  string
+)
 
 func init() {
-	// refreshTokenCmd.Flags().StringVarP(&signinEmail, "email", "d", "", "Email of the user account")
-	// refreshTokenCmd.MarkFlagRequired("email")
-	// refreshTokenCmd.Flags().StringVarP(&signinPassword, "password", "e", "", "Password of the user account")
+	refreshTokenCmd.Flags().StringVarP(&rtClientID, "client_id", "a", "", "-")
+	refreshTokenCmd.MarkFlagRequired("client_id")
+	refreshTokenCmd.Flags().StringVarP(&rtClientSecret, "client_secret", "b", "", "-")
+	refreshTokenCmd.MarkFlagRequired("client_secret")
+	refreshTokenCmd.Flags().StringVarP(&rtAuthorizeURL, "authorize_uri", "c", "http://localhost:8000/authorize", "-")
+	refreshTokenCmd.MarkFlagRequired("authorize_uri")
+	refreshTokenCmd.Flags().StringVarP(&rtTokenURL, "token_url", "d", "http://localhost:8000/token", "-")
+	refreshTokenCmd.MarkFlagRequired("token_url")
+	refreshTokenCmd.Flags().StringVarP(&rtRedirectURL, "redirect_uri", "e", "http://localhost:8000/appauth/code", "-")
 	rootCmd.AddCommand(refreshTokenCmd)
 }
 
 var refreshTokenCmd = &cobra.Command{
 	Use:              "osin_refresh_token -d -e",
 	TraverseChildren: true,
-	Short:            "Login a customer account",
+	Short:            "Refresh the token",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print("\033[H\033[2J") // Clear screen
 		doRunRefreshToken()
@@ -68,7 +76,7 @@ func doRunRefreshToken() {
 	}
 	preq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	preq.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
-	preq.SetBasicAuth("1234", "aabbccdd")
+	preq.SetBasicAuth(rtClientID, rtClientSecret)
 
 	pclient := &http.Client{}
 	presp, err := pclient.Do(preq)

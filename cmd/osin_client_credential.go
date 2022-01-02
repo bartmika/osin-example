@@ -9,7 +9,25 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
+var (
+	ccClientID     string
+	ccClientSecret string
+	ccAuthorizeURL string
+	ccTokenURL     string
+	ccRedirectURL  string
+)
+
 func init() {
+	clientCredentialCmd.Flags().StringVarP(&ccClientID, "client_id", "a", "", "-")
+	clientCredentialCmd.MarkFlagRequired("client_id")
+	clientCredentialCmd.Flags().StringVarP(&ccClientSecret, "client_secret", "b", "", "-")
+	clientCredentialCmd.MarkFlagRequired("client_secret")
+	clientCredentialCmd.Flags().StringVarP(&ccAuthorizeURL, "authorize_uri", "c", "http://localhost:8000/authorize", "-")
+	clientCredentialCmd.MarkFlagRequired("authorize_uri")
+	clientCredentialCmd.Flags().StringVarP(&ccTokenURL, "token_url", "d", "http://localhost:8000/token", "-")
+	clientCredentialCmd.MarkFlagRequired("token_url")
+	clientCredentialCmd.Flags().StringVarP(&ccRedirectURL, "redirect_uri", "e", "http://localhost:8000/appauth/code", "-")
+	clientCredentialCmd.MarkFlagRequired("redirect_uri")
 	rootCmd.AddCommand(clientCredentialCmd)
 }
 
@@ -21,10 +39,10 @@ var clientCredentialCmd = &cobra.Command{
 		log.Println("Beginning ClientCredential Based Authorization")
 
 		cfg := clientcredentials.Config{
-			ClientID:     "1234",
-			ClientSecret: "aabbccdd",
+			ClientID:     ccClientID,
+			ClientSecret: ccClientSecret,
 			Scopes:       []string{"all"},
-			TokenURL:     "http://localhost:8000/token",
+			TokenURL:     ccTokenURL,
 		}
 
 		// https://github.com/go-oauth2/oauth2/blob/b208c14e621016995debae2fa7dc20c8f0e4f6f8/example/client/client.go#L116

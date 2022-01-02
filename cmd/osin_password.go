@@ -10,14 +10,29 @@ import (
 )
 
 var (
-	loginPassword string
-	loginEmail    string
+	passClientID     string
+	passClientSecret string
+	passAuthorizeURL string
+	passTokenURL     string
+	passRedirectURL  string
+	passPassword     string
+	passEmail        string
 )
 
 func init() {
-	passwordCmd.Flags().StringVarP(&loginEmail, "email", "d", "", "Email of the user account")
+	passwordCmd.Flags().StringVarP(&passClientID, "client_id", "a", "", "-")
+	passwordCmd.MarkFlagRequired("client_id")
+	passwordCmd.Flags().StringVarP(&passClientSecret, "client_secret", "b", "", "-")
+	passwordCmd.MarkFlagRequired("client_secret")
+	passwordCmd.Flags().StringVarP(&passAuthorizeURL, "authorize_uri", "c", "", "-")
+	passwordCmd.MarkFlagRequired("authorize_uri")
+	passwordCmd.Flags().StringVarP(&passTokenURL, "token_url", "d", "", "-")
+	passwordCmd.MarkFlagRequired("token_url")
+	passwordCmd.Flags().StringVarP(&passRedirectURL, "redirect_uri", "e", "", "-")
+	passwordCmd.MarkFlagRequired("redirect_uri")
+	passwordCmd.Flags().StringVarP(&passEmail, "email", "f", "", "Email of the user account")
 	passwordCmd.MarkFlagRequired("email")
-	passwordCmd.Flags().StringVarP(&loginPassword, "password", "e", "", "Password of the user account")
+	passwordCmd.Flags().StringVarP(&passPassword, "password", "g", "", "Password of the user account")
 	passwordCmd.MarkFlagRequired("password")
 	rootCmd.AddCommand(passwordCmd)
 }
@@ -30,18 +45,18 @@ var passwordCmd = &cobra.Command{
 		log.Println("Beginning Password Based Authorization")
 
 		client := &oauth2.Config{
-			ClientID:     "1234",
-			ClientSecret: "aabbccdd",
+			ClientID:     passClientID,
+			ClientSecret: passClientSecret,
 			Scopes:       []string{"all"},
 			Endpoint: oauth2.Endpoint{
-				AuthURL:  "http://localhost:8000/authorize",
-				TokenURL: "http://localhost:8000/token",
+				AuthURL:  passAuthorizeURL,
+				TokenURL: passTokenURL,
 			},
-			RedirectURL: "http://localhost:8000/appauth/code",
+			RedirectURL: passRedirectURL,
 		}
 
 		// NOTE: https://pkg.go.dev/golang.org/x/oauth2#Config.PasswordCredentialsToken
-		token, err := client.PasswordCredentialsToken(context.Background(), loginEmail, loginPassword)
+		token, err := client.PasswordCredentialsToken(context.Background(), passEmail, passPassword)
 		if err != nil {
 			log.Fatal(err)
 		}

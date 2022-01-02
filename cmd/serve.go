@@ -38,6 +38,19 @@ func doRunServe() {
 }
 
 func runServeCmd() {
+	var env = make(map[string]string)
+	env["ClientID"] = applicationFrontendClientID
+	env["ClientSecret"] = applicationFrontendClientSecret
+	env["ClientReturnURL"] = applicationFrontendReturnURL
+	env["ClientAuthURL"] = fmt.Sprintf("%s/authorize", applicationAddress)
+	env["ClientTokenURL"] = fmt.Sprintf("%s/token", applicationAddress)
+	env["ApplicationAddress"] = applicationAddress
+
+	// For debugging purposes only.
+	// log.Println(applicationFrontendClientID)
+	// log.Println(applicationFrontendClientSecret)
+	// log.Println(applicationFrontendReturnURL)
+
 	// // Load up the S3.
 	// key := os.Getenv("OSIN_AWS_S3_ACCESS_KEY")
 	// secret := os.Getenv("OSIN_AWS_S3_SECRET_KEY")
@@ -73,9 +86,9 @@ func runServeCmd() {
 
 	oastore := controllers.NewOSINRedisStorage()
 	oastore.CreateClient(&osin.DefaultClient{
-		Id:          "1234",
-		Secret:      "aabbccdd",
-		RedirectUri: "http://localhost:8001/appauth/code",
+		Id:          applicationFrontendClientID,
+		Secret:      applicationFrontendClientSecret,
+		RedirectUri: applicationFrontendReturnURL,
 	})
 
 	//
@@ -109,12 +122,12 @@ func runServeCmd() {
 	//
 
 	c := &controllers.Controller{
-		SecretSigningKeyBin: []byte(applicationSigningKey),
-		OAuthServer:         oas,
-		OAuthStorage:        oastore,
-		TenantRepo:          tr,
-		UserRepo:            ur,
-		SessionManager:      sm,
+		Config:         env,
+		OAuthServer:    oas,
+		OAuthStorage:   oastore,
+		TenantRepo:     tr,
+		UserRepo:       ur,
+		SessionManager: sm,
 	}
 
 	mux := http.NewServeMux()

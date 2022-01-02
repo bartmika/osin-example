@@ -42,20 +42,3 @@ CREATE UNIQUE INDEX idx_user_email
 ON users (email);
 CREATE INDEX idx_user_tenant_id
 ON users (tenant_id);
-
-CREATE TABLE credentials (
-    id BIGSERIAL PRIMARY KEY,
-    uuid VARCHAR (36) UNIQUE NOT NULL,
-    email VARCHAR (255) UNIQUE NOT NULL,
-    client_id BIGINT NOT NULL,
-    client_secret TEXT NULL,
-    created_time TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
-    FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE
-);
-CREATE UNIQUE INDEX idx_credential_uuid
-ON credentials (uuid);
-CREATE UNIQUE INDEX idx_credential_email
-ON credentials (email);
-CREATE INDEX idx_user_tenant_id
-ON credentials (tenant_id);

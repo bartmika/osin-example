@@ -15,8 +15,8 @@ The purpose of this repository is to provide Golang example code of an identity 
 
     ```
     go run main.go add_client --client_id=frontend \
-                          --client_secret=pleasechangethisnow \
-                          --redirect_uri=http://127.0.0.1:8001/appauth/code
+                              --client_secret=pleasechangethisnow \
+                              --redirect_uri=http://127.0.0.1:8002/appauth/code
     ```
 
 3. Setup the database.
@@ -29,10 +29,11 @@ The purpose of this repository is to provide Golang example code of an identity 
     export OSIN_DB_USER=golang
     export OSIN_DB_PASSWORD=123password
     export OSIN_DB_NAME=osinexample_db
-    export OSIN_APP_ADDRESS=127.0.0.1:8000
+    export OSIN_APP_ADDRESS=http://127.0.0.1:8000
     export OSIN_APP_SECRET_KEY=pass-secret-1234566-please-change-me
     export OSIN_APP_FRONTEND_CLIENT_ID=frontend
-    export OSIN APP_FRONTEND_CLIENT_SECRET=pleasechangethisnow
+    export OSIN_APP_FRONTEND_CLIENT_SECRET=pleasechangethisnow
+    export OSIN_APP_FRONTEND_RETURN_URL=http://127.0.0.1:8001/appauth/code
     ```
 
 5. Run the server.
@@ -52,7 +53,13 @@ go run main.go register -b=Bart -c=Mika -d=demo@demo.com -e=123password -f=en
 
 Here is how you do password based grant
 ```
-go run main.go osin_password --email=demo@demo.com --password=123password
+go run main.go osin_password --email=demo@demo.com \
+                             --password=123password \
+                             --client_id=frontend \
+                             --client_secret=pleasechangethisnow \
+                             --redirect_uri=http://127.0.0.1:8001/appauth/code \
+                             --authorize_uri=http://localhost:8000/authorize \
+                             --token_url=http://localhost:8000/authorize
 ```
 
 
@@ -71,17 +78,43 @@ go run main.go tenant_retrieve --id=1
 Let's refresh our access token with our refresh token.
 
 ```
-go run main.go osin_refresh_token
+go run main.go osin_refresh_token --client_id=frontend \
+                                  --client_secret=pleasechangethisnow \
+                                  --redirect_uri=http://127.0.0.1:8001/appauth/code \
+                                  --authorize_uri=http://localhost:8000/authorize \
+                                  --token_url=http://localhost:8000/authorize
 ```
 
 Get our token from the client credentials.
 
 ```
-go run main.go osin_client_credential
+go run main.go osin_client_credential --client_id=frontend \
+                                      --client_secret=pleasechangethisnow \
+                                      --redirect_uri=http://127.0.0.1:8001/appauth/code \
+                                      --authorize_uri=http://localhost:8000/authorize \
+                                      --token_url=http://localhost:8000/authorize
 ```
 
 Get new refresh API
 
 ```
-go run main.go refresh_token -b=xxx
+go run main.go refresh_token --refresh_token=xxx --grant_type=refresh_token
 ```
+
+## License
+Made with ❤️ by [Bartlomiej Mika](https://bartlomiejmika.com).   
+The project is licensed under the [Unlicense](LICENSE).
+
+Third party libraries and resources:
+
+* [github.com/openshift/osin](https://github.com/openshift/osin) (BSD-3-Clause License) is used for oAuth 2.0 server implementation.
+* [github.com/openshift/osin](https://github.com/openshift/osin) is used for the oAuth 2.0 server session storage handling.
+* [go-oauth2/oauth2](https://github.com/go-oauth2/oauth2) (MIT) was not used but was a valuable learning resource.
+* [golang.org/x/oauth2](https://golang.org/x/oauth2) is used for client side oAuth 2.0 library.
+* [github.com/google/uuid](https://github.com/google/uuid) is used for generating UUID values.
+* [github.com/rs/cors](https://github.com/rs/cors) is used
+* [github.com/spf13/cobra](https://github.com/spf13/cobra) is used
+* [github.com/go-redis/redis](https://github.com/go-redis/redis) is used
+* [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt) is used for password hashing.
+* [github.com/lib/pq](https://github.com/lib/pq) is used for `postgres` connection handling.
+* [gopkg.in/guregu/null.v4](https://gopkg.in/guregu/null.v4) is used for null fields in marshal/unmarshal operations.
