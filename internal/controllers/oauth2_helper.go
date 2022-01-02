@@ -4,9 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/openshift/osin"
 
@@ -43,7 +41,9 @@ func (h *Controller) handleAuthorizationLoginPage(ctx context.Context, ar *osin.
 	w.Header().Set("Content-Type", "text/html; charset=utf-8") // Override the JSON header.
 	w.Write([]byte("<html><body>"))
 
-	w.Write([]byte(fmt.Sprintf("LOGIN %s <br/>", ar.Client.GetId())))
+	w.Write([]byte("<h1>Third-Party Application Authorization</h1>"))
+	w.Write([]byte("<p>You are about to authorize this application. This application will be granted <b>full access</b> to your account. If you would like to proceed, please enter your credentials now or close this window if you want to cancel.</p>"))
+
 	w.Write([]byte(fmt.Sprintf("<form action=\"/authorize?%s\" method=\"POST\">", r.URL.RawQuery)))
 
 	w.Write([]byte("Login: <input type=\"text\" name=\"login\" /><br/>"))
@@ -55,71 +55,4 @@ func (h *Controller) handleAuthorizationLoginPage(ctx context.Context, ar *osin.
 	w.Write([]byte("</body></html>"))
 
 	return nil, nil
-}
-
-func (h *Controller) handleAuthorizationPermissionRequest(w http.ResponseWriter, r *http.Request) {
-	// ctx := r.Context()
-	defer r.Body.Close()
-
-	r.ParseForm()
-
-	code := r.FormValue("code")
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8") // Override the JSON header.
-	w.Write([]byte("<html><body>"))
-	w.Write([]byte("APP AUTH - CODE<br/>"))
-	defer w.Write([]byte("</body></html>"))
-
-	if code == "" {
-		w.Write([]byte("Nothing to do"))
-		return
-	}
-
-	jr := make(map[string]interface{})
-	//
-	// build access code url
-	aurl := fmt.Sprintf("/token?grant_type=authorization_code&client_id=1234&client_secret=aabbccdd&state=xyz&redirect_uri=%s&code=%s",
-		url.QueryEscape("http://localhost:8000/appauth/code"), url.QueryEscape(code))
-	log.Println(aurl)
-
-	// if parse, download and parse json
-	if r.FormValue("doparse") == "1" {
-		err := utils.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
-			&osin.BasicAuth{"1234", "aabbccdd"}, jr)
-		if err != nil {
-			w.Write([]byte(err.Error()))
-			w.Write([]byte("<br/>"))
-		}
-	}
-
-	// show json error
-	if erd, ok := jr["error"]; ok {
-		w.Write([]byte(fmt.Sprintf("ERROR: %s<br/>\n", erd)))
-	}
-
-	// show json access token
-	if at, ok := jr["access_token"]; ok {
-		w.Write([]byte(fmt.Sprintf("ACCESS TOKEN: %s<br/>\n", at)))
-	}
-
-	w.Write([]byte(fmt.Sprintf("FULL RESULT: %+v<br/>\n", jr)))
-
-	// output links
-	w.Write([]byte(fmt.Sprintf("<a href=\"%s\">Goto Token URL</a><br/>", aurl)))
-
-	cururl := *r.URL
-	curq := cururl.Query()
-	curq.Add("doparse", "1")
-	cururl.RawQuery = curq.Encode()
-	w.Write([]byte(fmt.Sprintf("<a href=\"%s\">Download Token</a><br/>", cururl.String())))
-
-	if rt, ok := jr["refresh_token"]; ok {
-		rurl := fmt.Sprintf("/appauth/refresh?code=%s", rt)
-		w.Write([]byte(fmt.Sprintf("<a href=\"%s\">Refresh Token</a><br/>", rurl)))
-	}
-
-	if at, ok := jr["access_token"]; ok {
-		rurl := fmt.Sprintf("/appauth/info?code=%s", at)
-		w.Write([]byte(fmt.Sprintf("<a href=\"%s\">Info</a><br/>", rurl)))
-	}
 }

@@ -52,8 +52,6 @@ func (h *Controller) HandleRequests(w http.ResponseWriter, r *http.Request) {
 		h.handleAuthorizeRequest(w, r)
 	case n == 1 && p[0] == "info":
 		h.handleInfoRequest(w, r)
-	case n == 2 && p[0] == "appauth" && p[1] == "code":
-		h.handleAuthorizationPermissionRequest(w, r)
 
 	// --- CATCH ALL: D.N.E. ---
 	default:
