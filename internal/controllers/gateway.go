@@ -2,8 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -198,50 +203,49 @@ func (h *Controller) postRefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For debugging purposes, print our output so you can see the code working.
-	log.Println(requestData.Value)
+	// Perform our validation and return validation error on any issues detected.
+	isValid, errStr := validators.ValidateRefreshTokenRequest(&requestData)
+	if isValid == false {
+		http.Error(w, errStr, http.StatusBadRequest)
+		return
+	}
 
-	// ctx := r.Context()
+	endpoint := fmt.Sprintf("http://127.0.0.1:8000/token")
+	data := url.Values{}
+	data.Set("grant_type", requestData.GrantType)
+	data.Set("refresh_token", requestData.RefreshToken)
 
-	// // Verify our refresh token.
-	// sessionUUID, err := utils.ProcessJWTToken(h.SecretSigningKeyBin, requestData.Value)
-	// if err != nil {
-	// 	http.Error(w, "Unauthorized - refresh token expired or invalid", http.StatusUnauthorized)
-	// 	return
-	// }
 	//
-	// // Lookup our user profile in the session or return 500 error.
-	// user, err := h.SessionManager.GetUser(ctx, sessionUUID)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
+	// Submit the code.
 	//
-	// // Generate our JWT token.
-	// newSessionUUID := uuid.NewString()
-	// newSessionExpiryTime := time.Hour * 24 * 7 // 1 week
-	// accessToken, refreshToken, err := utils.GenerateJWTTokenPair(h.SecretSigningKeyBin, newSessionUUID, newSessionExpiryTime)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-	//
-	// // Save our new session.
-	// err = h.SessionManager.SaveUser(ctx, newSessionUUID, user, newSessionExpiryTime)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-	//
-	// // Finally return success.
-	// responseData := idos.RefreshTokenResponse{
-	// 	AccessToken:  accessToken,
-	// 	RefreshToken: refreshToken,
-	// }
-	// if err := json.NewEncoder(w).Encode(&responseData); err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
+
+	preq, err := http.NewRequest("POST", endpoint, strings.NewReader(data.Encode()))
+	if err != nil {
+		log.Fatal(err)
+	}
+	preq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	preq.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
+	preq.SetBasicAuth("1234", "aabbccdd")
+
+	pclient := &http.Client{}
+	presp, err := pclient.Do(preq)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer presp.Body.Close()
+
+	if presp.StatusCode != 200 {
+		log.Fatal("Not 200!")
+	}
+
+	// Read the response body
+	responseBytes, err := ioutil.ReadAll(presp.Body)
+	if err != nil {
+		log.Fatalf("ReadAll | An Error Occured %v", err)
+	}
+
+	// We will simply return the bytes! Thus skipping the marhsal/unmarhsal step.
+	w.Write(responseBytes)
 }
 
 func (h *Controller) profileEndpoint(w http.ResponseWriter, r *http.Request) {

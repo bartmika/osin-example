@@ -25,19 +25,19 @@ export OSIN_APP_SECRET_KEY=pass-secret-1234566-please-change-me
 
 Register an identity with our system.
 ```
-go run main.go register -b=Bart -c=Mika -d=bart@mikasoftware.com -e=123password -f=en
+go run main.go register -b=Bart -c=Mika -d=demo@demo.com -e=123password -f=en
 ```
 
 Here is how you do password based grant
 ```
-go run main.go password --email=bart@mikasoftware.com --password=123password
+go run main.go osin_password --email=demo@demo.com --password=123password
 ```
 
 
 Simple login, run and then copy+paste the result export to the terminal
 
 ```
-go run main.go login --email=bart@mikasoftware.com --password=123password
+go run main.go login --email=demo@demo.com --password=123password
 ```
 
 Check we are able to access our protected resource
@@ -49,11 +49,17 @@ go run main.go tenant_retrieve --id=1
 Let's refresh our access token with our refresh token.
 
 ```
-go run main.go refresh_token
+go run main.go osin_refresh_token
 ```
 
 Get our token from the client credentials.
 
 ```
-go run main.go client_credential
+go run main.go osin_client_credential
+```
+
+Get new refresh API
+
+```
+go run main.go refresh_token -b=xxx
 ```

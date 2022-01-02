@@ -38,6 +38,8 @@ func (h *Controller) HandleRequests(w http.ResponseWriter, r *http.Request) {
 		h.loginEndpoint(w, r)
 	case n == 3 && p[2] == "register" && r.Method == http.MethodPost:
 		h.registerEndpoint(w, r)
+	case n == 3 && p[2] == "refresh-token" && r.Method == http.MethodPost:
+		h.postRefreshToken(w, r)
 
 	// --- TENANT --- //
 	case n == 4 && p[2] == "tenant" && r.Method == http.MethodGet:

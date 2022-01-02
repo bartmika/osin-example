@@ -23,7 +23,7 @@ func init() {
 }
 
 var passwordCmd = &cobra.Command{
-	Use:   "password",
+	Use:   "osin_password",
 	Short: "Get token from username and password",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {

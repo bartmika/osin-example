@@ -1,102 +1,88 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
-	"os"
-	"strconv"
-	"strings"
 
-	"github.com/bartmika/osin-example/internal/utils"
 	"github.com/spf13/cobra"
 )
 
-//
-// var (
-// 	signinEmail    string
-// 	signinPassword string
-// )
+var (
+	rtaGrantType    string
+	rtaRefreshToken string
+)
 
 func init() {
-	// refreshTokenCmd.Flags().StringVarP(&signinEmail, "email", "d", "", "Email of the user account")
-	// refreshTokenCmd.MarkFlagRequired("email")
-	// refreshTokenCmd.Flags().StringVarP(&signinPassword, "password", "e", "", "Password of the user account")
-	rootCmd.AddCommand(refreshTokenCmd)
+	refreshTokenAPICmd.Flags().StringVarP(&rtaGrantType, "grant_type", "a", "refresh_token", "-")
+	refreshTokenAPICmd.Flags().StringVarP(&rtaRefreshToken, "refresh_token", "b", "", "-")
+	refreshTokenAPICmd.MarkFlagRequired("refresh_token")
+
+	rootCmd.AddCommand(refreshTokenAPICmd)
 }
 
-var refreshTokenCmd = &cobra.Command{
+var refreshTokenAPICmd = &cobra.Command{
 	Use:              "refresh_token -d -e",
 	TraverseChildren: true,
 	Short:            "Login a customer account",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print("\033[H\033[2J") // Clear screen
-		doRunRefreshToken()
+		doRunRefreshTokenAPI()
 	},
 }
 
-type RefreshTokenRequest struct {
-	GrantType    string `json:"grant_type"`
+type RefreshTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	ExpiresIn    int    `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
+	Scope        string `json:"scope_type"`
+	TokenType    string `json:"token_type"`
 }
 
-func doRunRefreshToken() {
-	accessToken := os.Getenv("OSIN_EXAMPLE_CLI_ACCESS_TOKEN")
-	refreshToken := os.Getenv("OSIN_EXAMPLE_CLI_REFRESH_TOKEN")
+func doRunRefreshTokenAPI() {
+	aUrl := "http://127.0.0.1:8000/api/v1/refresh-token"
+	data := &RefreshTokenRequest{
+		RefreshToken: rtaRefreshToken,
+		GrantType:    rtaGrantType,
+	}
+	dataBin, _ := json.Marshal(data)
+	requestBodyBuf := bytes.NewBuffer(dataBin)
 
-	endpoint := fmt.Sprintf("http://127.0.0.1:8000/token")
-	data := url.Values{}
-	data.Set("grant_type", "refresh_token")
-	data.Set("refresh_token", refreshToken)
-
-	// For debugging purposes only.
-
-	log.Println(accessToken)
-	log.Println(refreshToken)
-	log.Println(url.QueryEscape(refreshToken))
-	log.Println(endpoint)
-
-	//
-	// Submit the code.
-	//
-
-	preq, err := http.NewRequest("POST", endpoint, strings.NewReader(data.Encode()))
+	resp, err := http.Post(aUrl, "application/json", requestBodyBuf)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Post | An Error Occured %v", err)
 	}
-	preq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	preq.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
-	preq.SetBasicAuth("1234", "aabbccdd")
 
-	pclient := &http.Client{}
-	presp, err := pclient.Do(preq)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer presp.Body.Close()
-
-	if presp.StatusCode != 200 {
-		log.Fatal("Not 200!")
-	}
-	//
-	// resp, err := http.PostForm(aURL, url.Values{
-	// 	"grant_type":    {"refresh_token"},
-	// 	"refresh_token": {refreshToken},
-	// })
-	//
-	// if err != nil {
-	// 	log.Fatalf("Post | An Error Occured %v", err)
-	// }
-	//
-	// defer resp.Body.Close()
+	defer resp.Body.Close()
 
 	// Read the response body
-	responseBytes, err := ioutil.ReadAll(presp.Body)
+	responseBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalf("ReadAll | An Error Occured %v", err)
 	}
+	fmt.Println("-->", string(responseBytes)) // Return what was returned from API.
 
-	fmt.Println(utils.JsonPrettyPrint(string(responseBytes)))
+	var responseData RefreshTokenResponse
+
+	// De-serialize bytes into our struct object.
+	err = json.Unmarshal(responseBytes, &responseData)
+	if err != nil {
+		log.Println(string(responseBytes))
+		log.Fatalf("Unmarshal | An Error Occured %v", err)
+	}
+
+	// Output message.
+	fmt.Println("Raw:", responseData)
+	fmt.Println("AccessToken:", responseData.AccessToken)
+	fmt.Println("ExpiresIn:", responseData.ExpiresIn)
+	fmt.Println("RefreshToken:", responseData.RefreshToken)
+	fmt.Println("Scope:", responseData.Scope)
+	fmt.Println("TokenType:", responseData.TokenType)
+
+	// Output message.
+	fmt.Printf("Please run in your console:\n\nexport OSIN_EXAMPLE_CLI_ACCESS_TOKEN=%s\n\n", responseData.AccessToken)
+	fmt.Printf("export OSIN_EXAMPLE_CLI_REFRESH_TOKEN=%s\n\n", responseData.RefreshToken)
 }

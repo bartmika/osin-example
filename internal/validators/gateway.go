@@ -54,3 +54,23 @@ func ValidateLoginRequest(dirtyData *idos.LoginRequestIDO) (bool, string) {
 	}
 	return true, ""
 }
+
+func ValidateRefreshTokenRequest(dirtyData *idos.RefreshTokenRequestIDO) (bool, string) {
+	e := make(map[string]string)
+
+	if dirtyData.GrantType == "" {
+		e["grant_type"] = "missing value"
+	}
+	if dirtyData.RefreshToken == "" {
+		e["refresh_token"] = "missing value"
+	}
+
+	if len(e) != 0 {
+		b, err := json.Marshal(e)
+		if err != nil { // Defensive code
+			return false, err.Error()
+		}
+		return false, string(b)
+	}
+	return true, ""
+}

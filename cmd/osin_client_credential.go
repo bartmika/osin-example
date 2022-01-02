@@ -14,7 +14,7 @@ func init() {
 }
 
 var clientCredentialCmd = &cobra.Command{
-	Use:   "client_credential",
+	Use:   "osin_client_credential",
 	Short: "Get token from client credentials",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {

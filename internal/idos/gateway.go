@@ -41,7 +41,8 @@ type LoginResponseIDO struct {
 
 // The struct used to represent the user's `refresh token` POST request data.
 type RefreshTokenRequestIDO struct {
-	Value string `json:"value"`
+	GrantType    string `json:"grant_type"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // The struct used to represent the system's response when the `refresh token` POST request was a success.
