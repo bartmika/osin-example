@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -66,7 +67,12 @@ var passwordCmd = &cobra.Command{
 		log.Println("TokenType", token.TokenType)
 		log.Println("RefreshToken", token.RefreshToken)
 		log.Println("Expiry", token.Expiry)
-		log.Println("UserID", token.Extra("custom_parameter"))
+		log.Println("UserData|TenantID", token.Extra("tenant_id"))
+		log.Println("UserData|UserID", token.Extra("user_id"))
+		log.Println("UserData|UserUUID", token.Extra("user_uuid"))
 
+		// Output message.
+		fmt.Printf("Please run in your console:\n\nexport OSIN_EXAMPLE_CLI_ACCESS_TOKEN=%s\n\n", token.AccessToken)
+		fmt.Printf("export OSIN_EXAMPLE_CLI_REFRESH_TOKEN=%s\n\n", token.RefreshToken)
 	},
 }

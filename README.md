@@ -59,7 +59,7 @@ go run main.go osin_password --email=demo@demo.com \
                              --client_secret=pleasechangethisnow \
                              --redirect_uri=http://127.0.0.1:8001/appauth/code \
                              --authorize_uri=http://localhost:8000/authorize \
-                             --token_url=http://localhost:8000/authorize
+                             --token_url=http://localhost:8000/token
 ```
 
 
@@ -118,3 +118,4 @@ Third party libraries and resources:
 * [golang.org/x/crypto/bcrypt](https://golang.org/x/crypto/bcrypt) (BSD-3-Clause License) is used for password hashing.
 * [github.com/lib/pq](https://github.com/lib/pq) (OTHER) is used for `postgres` handling.
 * [gopkg.in/guregu/null.v4](https://gopkg.in/guregu/null.v4) (BSD-2-Clause License) is used for null fields in marshal/unmarshal operations.
+* [rfc6749 - The OAuth 2.0 Authorization Framework](https://datatracker.ietf.org/doc/html/rfc6749) used as specs.
