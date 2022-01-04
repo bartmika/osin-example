@@ -44,15 +44,41 @@ The purpose of this repository is to provide Golang example code of an identity 
 
 6. You are ready to use your server.
 
-## Notes
+## Documentation
+
+### Unprotected Resources
+
+#### User Registration
 
 Register an identity with our system.
-```
+
+```bash
 go run main.go register -b=Bart -c=Mika -d=demo@demo.com -e=123password -f=en
 ```
 
-Here is how you do password based grant
+#### User Login
+
+Simple login, run and then copy+paste the result export to the terminal
+
+```bash
+go run main.go login --email=demo@demo.com --password=123password
 ```
+
+#### User Token Refresh
+
+Get new refresh API
+
+```bash
+go run main.go refresh_token --refresh_token=xxx --grant_type=refresh_token
+```
+
+### oAuth 2.0
+
+#### Password Grant
+
+Here is how you do password based grant
+
+```bash
 go run main.go osin_password --email=demo@demo.com \
                              --password=123password \
                              --client_id=frontend \
@@ -62,28 +88,7 @@ go run main.go osin_password --email=demo@demo.com \
                              --token_url=http://localhost:8000/token
 ```
 
-
-Simple login, run and then copy+paste the result export to the terminal
-
-```
-go run main.go login --email=demo@demo.com --password=123password
-```
-
-Check we are able to access our protected resource
-
-```
-go run main.go tenant_retrieve --id=1
-```
-
-Let's refresh our access token with our refresh token.
-
-```
-go run main.go osin_refresh_token --client_id=frontend \
-                                  --client_secret=pleasechangethisnow \
-                                  --redirect_uri=http://127.0.0.1:8001/appauth/code \
-                                  --authorize_uri=http://localhost:8000/authorize \
-                                  --token_url=http://localhost:8000/authorize
-```
+#### Client Credentials Grant
 
 Get our token from the client credentials.
 
@@ -95,11 +100,28 @@ go run main.go osin_client_credential --client_id=frontend \
                                       --token_url=http://localhost:8000/authorize
 ```
 
-Get new refresh API
+### Refresh Token
+
+Let's refresh our access token with our refresh token.
 
 ```
-go run main.go refresh_token --refresh_token=xxx --grant_type=refresh_token
+go run main.go osin_refresh_token --client_id=frontend \
+                                  --client_secret=pleasechangethisnow \
+                                  --redirect_uri=http://127.0.0.1:8001/appauth/code \
+                                  --authorize_uri=http://localhost:8000/authorize \
+                                  --token_url=http://localhost:8000/authorize
 ```
+
+### Protect Resources
+
+#### Get Tenant
+
+Check we are able to access our protected resource
+
+```bash
+go run main.go tenant_retrieve --id=1
+```
+
 
 ## License
 Made with ❤️ by [Bartlomiej Mika](https://bartlomiejmika.com).   
