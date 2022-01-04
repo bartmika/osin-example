@@ -75,6 +75,8 @@ func runServeCmd() {
 	// Load up our repositories.
 	tr := repo.NewTenantRepo(db)
 	ur := repo.NewUserRepo(db)
+	ar := repo.NewApplicationRepo(db)
+	aar := repo.NewAuthorizedApplicationRepo(db)
 
 	// Open up our session handler, powered by redis and let's save the user
 	// account with our ID
@@ -122,12 +124,14 @@ func runServeCmd() {
 	//
 
 	c := &controllers.Controller{
-		Config:         env,
-		OAuthServer:    oas,
-		OAuthStorage:   oastore,
-		TenantRepo:     tr,
-		UserRepo:       ur,
-		SessionManager: sm,
+		Config:                    env,
+		OAuthServer:               oas,
+		OAuthStorage:              oastore,
+		TenantRepo:                tr,
+		UserRepo:                  ur,
+		ApplicationRepo:           ar,
+		AuthorizedApplicationRepo: aar,
+		SessionManager:            sm,
 	}
 
 	mux := http.NewServeMux()

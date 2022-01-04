@@ -13,12 +13,14 @@ import (
 )
 
 type Controller struct {
-	Config         map[string]string
-	OAuthServer    *osin.Server
-	OAuthStorage   *OSINRedisStorage
-	TenantRepo     models.TenantRepository
-	UserRepo       models.UserRepository
-	SessionManager *session.SessionManager
+	Config                    map[string]string
+	OAuthServer               *osin.Server
+	OAuthStorage              *OSINRedisStorage
+	TenantRepo                models.TenantRepository
+	UserRepo                  models.UserRepository
+	ApplicationRepo           models.ApplicationRepository
+	AuthorizedApplicationRepo models.AuthorizedApplicationRepository
+	SessionManager            *session.SessionManager
 }
 
 func (h *Controller) HandleRequests(w http.ResponseWriter, r *http.Request) {
