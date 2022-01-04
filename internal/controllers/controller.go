@@ -19,6 +19,7 @@ type Controller struct {
 	TenantRepo                models.TenantRepository
 	UserRepo                  models.UserRepository
 	ApplicationRepo           models.ApplicationRepository
+	ApplicationLiteRepo       models.ApplicationLiteRepository
 	AuthorizedApplicationRepo models.AuthorizedApplicationRepository
 	SessionManager            *session.SessionManager
 }
