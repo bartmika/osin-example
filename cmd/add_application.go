@@ -19,6 +19,7 @@ import (
 var (
 	addApplicationName        string
 	addApplicationDescription string
+	addApplicationWebsiteURL  string
 	addApplicationScope       string
 	addApplicationRedirectURL string
 	addApplicationImageURL    string
@@ -30,13 +31,15 @@ func init() {
 	addApplicationCmd.MarkFlagRequired("name")
 	addApplicationCmd.Flags().StringVarP(&addApplicationDescription, "description", "b", "", "-")
 	addApplicationCmd.MarkFlagRequired("description")
-	addApplicationCmd.Flags().StringVarP(&addApplicationScope, "scope", "c", "", "-")
+	addApplicationCmd.Flags().StringVarP(&addApplicationWebsiteURL, "website_url", "c", "", "-")
+	addApplicationCmd.MarkFlagRequired("website_url")
+	addApplicationCmd.Flags().StringVarP(&addApplicationScope, "scope", "d", "", "-")
 	addApplicationCmd.MarkFlagRequired("scope")
-	addApplicationCmd.Flags().StringVarP(&addApplicationRedirectURL, "redirect_url", "d", "", "-")
+	addApplicationCmd.Flags().StringVarP(&addApplicationRedirectURL, "redirect_url", "e", "", "-")
 	addApplicationCmd.MarkFlagRequired("redirect_url")
-	addApplicationCmd.Flags().StringVarP(&addApplicationImageURL, "image_url", "e", "", "-")
+	addApplicationCmd.Flags().StringVarP(&addApplicationImageURL, "image_url", "f", "", "-")
 	addApplicationCmd.MarkFlagRequired("image_url")
-	addApplicationCmd.Flags().StringVarP(&addApplicationTenantID, "tenant_id", "f", "", "-")
+	addApplicationCmd.Flags().StringVarP(&addApplicationTenantID, "tenant_id", "g", "", "-")
 	addApplicationCmd.MarkFlagRequired("tenant_id")
 	rootCmd.AddCommand(addApplicationCmd)
 }
@@ -85,6 +88,7 @@ func doRunAddApplication() {
 		UUID:         uuid.NewString(),
 		Name:         addApplicationName,
 		Description:  addApplicationDescription,
+		WebsiteURL:   addApplicationWebsiteURL,
 		Scope:        addApplicationScope,
 		RedirectURL:  addApplicationRedirectURL,
 		ImageURL:     addApplicationImageURL,

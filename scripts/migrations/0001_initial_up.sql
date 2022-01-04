@@ -49,6 +49,7 @@ CREATE TABLE applications (
     tenant_id BIGINT NOT NULL,
     name VARCHAR (255) NULL DEFAULT '',
     description TEXT NOT NULL,
+    website_url VARCHAR (255) NULL DEFAULT '',
     scope VARCHAR (255) NULL DEFAULT '',
     redirect_url VARCHAR (255) NULL DEFAULT '',
     image_url VARCHAR (255) NULL DEFAULT '',

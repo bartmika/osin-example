@@ -19,6 +19,7 @@ type Application struct {
 	TenantID     uint64    `json:"tenant_id"`
 	Name         string    `json:"name"`
 	Description  string    `json:"description"`
+	WebsiteURL   string    `json:"website_url"`
 	Scope        string    `json:"scope"`
 	RedirectURL  string    `json:"redirect_url"`
 	ImageURL     string    `json:"image_url"`

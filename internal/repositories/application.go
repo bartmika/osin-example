@@ -25,9 +25,9 @@ func (r *ApplicationRepo) Insert(ctx context.Context, m *models.Application) err
 
 	query := `
     INSERT INTO applications (
-        uuid, tenant_id, name, description, scope, redirect_url, image_url, state, client_id, client_secret
+        uuid, tenant_id, name, description, website_url, scope, redirect_url, image_url, state, client_id, client_secret
     ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
     )
     `
 
@@ -40,7 +40,7 @@ func (r *ApplicationRepo) Insert(ctx context.Context, m *models.Application) err
 
 	_, err = stmt.ExecContext(
 		ctx,
-		m.UUID, m.TenantID, m.Name, m.Description, m.Scope, m.RedirectURL, m.ImageURL, m.State, m.ClientID, m.ClientSecret,
+		m.UUID, m.TenantID, m.Name, m.Description, m.WebsiteURL, m.Scope, m.RedirectURL, m.ImageURL, m.State, m.ClientID, m.ClientSecret,
 	)
 	return err
 }
@@ -55,16 +55,17 @@ func (r *ApplicationRepo) UpdateByID(ctx context.Context, m *models.Application)
     SET
         name = $1,
 		description = $2,
-		scope = $3,
-		redirect_url = $4,
-		image_url = $5,
-		state = $6,
-		client_id = $7,
-		client_secret = $8,
-		created_time = $9,
-		modified_time = $10
+		website_url = $3,
+		scope = $4,
+		redirect_url = $5,
+		image_url = $6,
+		state = $7,
+		client_id = $8,
+		client_secret = $9,
+		created_time = $10,
+		modified_time = $11
     WHERE
-        id = $11
+        id = $12
     `
 
 	stmt, err := r.db.PrepareContext(ctx, query)
@@ -74,7 +75,7 @@ func (r *ApplicationRepo) UpdateByID(ctx context.Context, m *models.Application)
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(
-		ctx, m.Name, m.Description, m.Scope, m.RedirectURL, m.ImageURL, m.State,
+		ctx, m.Name, m.Description, m.WebsiteURL, m.Scope, m.RedirectURL, m.ImageURL, m.State,
 		m.ClientID, m.ClientSecret, m.CreatedTime, m.ModifiedTime, m.ID,
 	)
 	return err
@@ -88,7 +89,7 @@ func (r *ApplicationRepo) GetByID(ctx context.Context, id uint64) (*models.Appli
 
 	query := `
     SELECT
-        id, uuid, tenant_id, name, description, scope, redirect_url, image_url, state,
+        id, uuid, tenant_id, name, description, website_url, scope, redirect_url, image_url, state,
 		client_id, client_secret, created_time, modified_time
     FROM
         applications
@@ -96,7 +97,7 @@ func (r *ApplicationRepo) GetByID(ctx context.Context, id uint64) (*models.Appli
         id = $1
     `
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&m.ID, &m.UUID, &m.TenantID, &m.Name, &m.Description, &m.Scope,
+		&m.ID, &m.UUID, &m.TenantID, &m.Name, &m.Description, &m.WebsiteURL, &m.Scope,
 		&m.RedirectURL, &m.ImageURL, &m.State, &m.ClientID, &m.ClientSecret,
 		&m.CreatedTime, &m.ModifiedTime,
 	)
@@ -119,7 +120,7 @@ func (r *ApplicationRepo) GetByUUID(ctx context.Context, id string) (*models.App
 
 	query := `
     SELECT
-        id, uuid, tenant_id, name, description, scope, redirect_url, image_url,
+        id, uuid, tenant_id, name, description, website_url, scope, redirect_url, image_url,
 		state, client_id, client_secret, created_time, modified_time
     FROM
         applications
@@ -127,7 +128,7 @@ func (r *ApplicationRepo) GetByUUID(ctx context.Context, id string) (*models.App
         uuid = $1
     `
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&m.ID, &m.UUID, &m.TenantID, &m.Name, &m.Description, &m.Scope,
+		&m.ID, &m.UUID, &m.TenantID, &m.Name, &m.Description, &m.WebsiteURL, &m.Scope,
 		&m.RedirectURL, &m.ImageURL, &m.State, &m.ClientID, &m.ClientSecret,
 		&m.CreatedTime, &m.ModifiedTime,
 	)
@@ -150,7 +151,7 @@ func (r *ApplicationRepo) GetByClientID(ctx context.Context, cid string) (*model
 
 	query := `
     SELECT
-        id, uuid, tenant_id, name, description, scope, redirect_url, image_url,
+        id, uuid, tenant_id, name, description, website_url, scope, redirect_url, image_url,
 		state, client_id, client_secret, created_time, modified_time
     FROM
         applications
@@ -158,7 +159,7 @@ func (r *ApplicationRepo) GetByClientID(ctx context.Context, cid string) (*model
         client_id = $1
     `
 	err := r.db.QueryRowContext(ctx, query, cid).Scan(
-		&m.ID, &m.UUID, &m.TenantID, &m.Name, &m.Description, &m.Scope,
+		&m.ID, &m.UUID, &m.TenantID, &m.Name, &m.Description, &m.WebsiteURL, &m.Scope,
 		&m.RedirectURL, &m.ImageURL, &m.State, &m.ClientID, &m.ClientSecret,
 		&m.CreatedTime, &m.ModifiedTime,
 	)
