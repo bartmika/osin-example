@@ -9,6 +9,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// EXAMPLE USAGE
+// go run main.go add_client --client_id=frontend --client_secret=pleasechangethisnow --redirect_uri=http://127.0.0.1:8002/appauth/code
+
 var (
 	addClientID          string
 	addClientSecret      string

@@ -1,18 +1,16 @@
 package controllers
 
 import (
-	// "encoding/json"
 	"encoding/json"
 	"log"
 	"net/http"
-
 	"strconv"
 
+	"github.com/openshift/osin"
 	null "gopkg.in/guregu/null.v4"
 
 	"github.com/bartmika/osin-example/internal/idos"
 	"github.com/bartmika/osin-example/internal/models"
-	"github.com/bartmika/osin-example/internal/validators"
 )
 
 func (h *Controller) applicationsListEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -100,41 +98,40 @@ func (h *Controller) applicationCreateEndpoint(w http.ResponseWriter, r *http.Re
 	// timezone := ctx.Value("user_timezone").(string)
 	// ipAddress := ctx.Value("IPAddress").(string)
 
-	// The following code will `unmarshal` the user request data or return error.
-	var requestData *idos.ApplicationCreateRequestIDO
-	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Perform our validation and return validation error on any issues detected.
-	isValid, errStr := validators.ValidateApplicationCreateFromRequest(requestData)
-	if isValid == false {
-		http.Error(w, errStr, http.StatusBadRequest)
-		return
-	}
-
-	// Next we need to create a `User` account in our system before creating the application.
-	m, err := idos.ApplicationCreateRequestUnmarshal(ctx, requestData)
+	req := &idos.ApplicationCreateRequestIDO{}
+	m, err := req.Unmarshal(ctx, r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println("|applicationCreateEndpoint|Unmarshal|err", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	err = h.ApplicationRepo.Insert(ctx, m)
 	if err != nil {
+		log.Println("|applicationCreateEndpoint|Insert|err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	m, err = h.ApplicationRepo.GetByUUID(ctx, m.UUID)
 	if err != nil {
+		log.Println("|applicationCreateEndpoint|GetByUUID|err", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Call our 'get details' API endpoint and return it.
-	idStr := strconv.FormatUint(m.ID, 10)
-	h.applicationGetEndpoint(w, r, idStr)
+	// Create our oAuth 2.0 client in the storage.
+
+	h.OAuthStorage.CreateClient(&osin.DefaultClient{
+		Id:          m.ClientID,
+		Secret:      m.ClientSecret,
+		RedirectUri: m.RedirectURL,
+	})
+
+	// Serialize our result.
+	ido := idos.ApplicationResponseMarshal(m)
+	if err := json.NewEncoder(w).Encode(&ido); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (h *Controller) applicationGetEndpoint(w http.ResponseWriter, r *http.Request, idStr string) {
@@ -150,6 +147,7 @@ func (h *Controller) applicationGetEndpoint(w http.ResponseWriter, r *http.Reque
 
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
+		log.Println("|applicationCreateEndpoint|strconv.ParseUint|idStr,err", idStr, err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -167,6 +165,9 @@ func (h *Controller) applicationGetEndpoint(w http.ResponseWriter, r *http.Reque
 		http.Error(w, "application access forbidden", http.StatusForbidden)
 		return
 	}
+
+	// For security purposes, this field is restricted from being used.
+	m.ClientSecret = ""
 
 	//
 	// Serialize the data.
@@ -206,16 +207,10 @@ func (h *Controller) applicationUpdateEndpoint(w http.ResponseWriter, r *http.Re
 	}
 
 	// The following code will `unmarshal` the user request data or return error.
-	var requestData *idos.ApplicationUpdateRequestIDO
-	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
+	requestData := &idos.ApplicationUpdateRequestIDO{}
+	err = requestData.Unmarshal(r)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Perform our validation and return validation error on any issues detected.
-	isValid, errStr := validators.ValidateApplicationUpdateFromRequest(requestData)
-	if isValid == false {
-		http.Error(w, errStr, http.StatusBadRequest)
 		return
 	}
 
@@ -234,8 +229,17 @@ func (h *Controller) applicationUpdateEndpoint(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	// Call our 'get details' API endpoint and return it.
-	h.applicationGetEndpoint(w, r, idStr)
+	// For security purposes, this field is restricted from being used.
+	m.ClientSecret = ""
+
+	//
+	// Serialize the data.
+	//
+
+	ido := idos.ApplicationResponseMarshal(m)
+	if err := json.NewEncoder(w).Encode(&ido); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (h *Controller) applicationDeleteEndpoint(w http.ResponseWriter, r *http.Request, idStr string) {
@@ -249,6 +253,15 @@ func (h *Controller) applicationDeleteEndpoint(w http.ResponseWriter, r *http.Re
 	applicationID, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	doesExist, err := h.ApplicationRepo.CheckIfExistsByID(ctx, applicationID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !doesExist {
+		http.Error(w, "application d.n.e.", http.StatusNotFound)
 		return
 	}
 	err = h.ApplicationRepo.DeleteByID(ctx, applicationID)

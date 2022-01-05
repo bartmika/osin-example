@@ -12,6 +12,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// EXAMPLE USAGE:
+// go run main.go login -d=demo@demo.com -e=123password
+
 var (
 	signinEmail    string
 	signinPassword string

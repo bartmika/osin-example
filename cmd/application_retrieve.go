@@ -13,30 +13,30 @@ import (
 )
 
 // EXAMPLE USAGE
-// go run main.go tenant_retrieve --id=1
+// go run main.go application_retrieve --id=1
 
 var (
-	tenantRetrieveID string
+	applicationRetrieveID string
 )
 
 func init() {
-	tenantRetrieveCmd.Flags().StringVarP(&tenantRetrieveID, "id", "a", "0", "Id of the tenant")
-	tenantRetrieveCmd.MarkFlagRequired("id")
-	rootCmd.AddCommand(tenantRetrieveCmd)
+	applicationRetrieveCmd.Flags().StringVarP(&applicationRetrieveID, "id", "a", "0", "Id of the application")
+	applicationRetrieveCmd.MarkFlagRequired("id")
+	rootCmd.AddCommand(applicationRetrieveCmd)
 }
 
-var tenantRetrieveCmd = &cobra.Command{
-	Use:              "tenant_retrieve -d -e",
+var applicationRetrieveCmd = &cobra.Command{
+	Use:              "application_retrieve -d -e",
 	TraverseChildren: true,
 	Short:            "Login a customer account",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print("\033[H\033[2J") // Clear screen
-		doRunTenantRetrieve()
+		doRunapplicationRetrieve()
 	},
 }
 
-func doRunTenantRetrieve() {
-	aUrl := "http://127.0.0.1:8000" + strings.Replace("/api/v1/tenant/xxx", "xxx", tenantRetrieveID, -1)
+func doRunapplicationRetrieve() {
+	aUrl := "http://127.0.0.1:8000" + strings.Replace("/api/v1/application/xxx", "xxx", applicationRetrieveID, -1)
 
 	// Create a Bearer string by appending string access token
 	accessToken := os.Getenv("OSIN_EXAMPLE_CLI_ACCESS_TOKEN")

@@ -107,8 +107,9 @@ func (h *Controller) handleTokenRequest(w http.ResponseWriter, r *http.Request) 
 
 				// Store this for our output later...
 				authenticatedUser = user
+			} else {
+				log.Println("handleTokenRequest|HandleAccessRequest|PASSWORD|Unauthorized")
 			}
-			log.Println("handleTokenRequest|ar.Authorized:", ar.Authorized)
 			log.Println("handleTokenRequest|HandleAccessRequest|PASSWORD|Finished")
 		case osin.CLIENT_CREDENTIALS:
 			log.Println("handleTokenRequest|HandleAccessRequest|CLIENT_CREDENTIALS|Started")
